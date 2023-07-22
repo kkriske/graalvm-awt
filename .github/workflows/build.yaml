@@ -25,8 +25,8 @@ jobs:
           cache: 'maven'
       - name: Setup display
         if: runner.os == 'Linux'
-        run: xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+        run: |
+          echo "DISPLAY=:99.0" >> "$GITHUB_ENV"
+          Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
       - name: Build & Test
         run: mvn -V -B package
-        env:
-          DISPLAY: :99.0
