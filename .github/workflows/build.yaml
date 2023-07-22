@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: JDK ${{ matrix.java-version }} on ${{ matrix.os }}
+    name: Build on GraalVM JDK ${{ matrix.java-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -22,5 +22,11 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'maven'
+      - name: Setup display
+        if: runner.os == 'Linux'
+        run: xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
       - name: Build & Test
         run: mvn -V -B package
+        env:
+          DISPLAY: :99.0
