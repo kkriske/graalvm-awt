@@ -1,0 +1,26 @@
+name: build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: JDK ${{ matrix.java-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        java-version: ['17', '20', 'dev']
+        os: ['windows-latest', 'ubuntu-latest']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup GraalVM CE
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & Test
+        run: mvn -V -B package
