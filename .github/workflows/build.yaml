@@ -23,7 +23,7 @@ jobs:
           distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
-      - name: Setup display
+      - name: Setup virtual display
         if: runner.os == 'Linux'
         run: |
           echo "DISPLAY=:99.0" >> "$GITHUB_ENV"

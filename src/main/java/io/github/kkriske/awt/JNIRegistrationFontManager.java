@@ -134,7 +134,6 @@ public class JNIRegistrationFontManager extends JNIRegistrationUtil implements F
         RuntimeJNIAccess.register(constructor(a, "sun.font.FontConfigManager$FontConfigFont"));
         RuntimeJNIAccess.register(fields(a, "sun.font.FontConfigManager$FontConfigFont",
                 "familyName", "styleStr", "fullName", "fontFile"));
-
     }
 
     // windows specific registrations
