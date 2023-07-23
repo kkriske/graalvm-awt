@@ -118,6 +118,9 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
                         method(a, "sun.awt.X11GraphicsEnvironment", "initDisplay", boolean.class));
                 a.registerReachabilityHandler(JNIRegistrationAwt::registerXToolkitInitIDs,
                         method(a, "sun.awt.X11.XToolkit", "initIDs"));
+                a.registerReachabilityHandler(JNIRegistrationAwt::registerXDesktopPeerInit,
+                        method(a, "sun.awt.X11.XDesktopPeer", "init",
+                                int.class, boolean.class));
             }
         }
     }
@@ -370,5 +373,14 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
     private static void registerXToolkitInitIDs(DuringAnalysisAccess a) {
         RuntimeJNIAccess.register(fields(a, "sun.awt.X11.XToolkit",
                 "numLockMask", "modLockIsShiftLock"));
+    }
+
+    private static void registerXDesktopPeerInit(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(clazz(a, "java.awt.Desktop$Action"));
+        RuntimeJNIAccess.register(clazz(a, "sun.awt.X11.XDesktopPeer"));
+        RuntimeJNIAccess.register(fields(a, "sun.awt.X11.XDesktopPeer", "supportedActions"));
+        RuntimeJNIAccess.register(clazz(a, "java.util.ArrayList"));
+        RuntimeJNIAccess.register(method(a, "java.util.ArrayList", "add", Object.class));
+        RuntimeJNIAccess.register(method(a, "java.util.ArrayList", "clear"));
     }
 }
