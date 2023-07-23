@@ -74,6 +74,26 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
                 method(a, "sun.java2d.loops.GraphicsPrimitiveMgr", "initIDs",
                         Class.class, Class.class, Class.class, Class.class, Class.class, Class.class,
                         Class.class, Class.class, Class.class, Class.class, Class.class));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerBufferedImageInitIDs,
+                method(a, "java.awt.image.BufferedImage", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerRasterInitIDs,
+                method(a, "java.awt.image.Raster", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerByteComponentRasterInitIDs,
+                method(a, "sun.awt.image.ByteComponentRaster", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerBytePackedRasterInitIDs,
+                method(a, "sun.awt.image.BytePackedRaster", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerShortComponentRasterInitIDs,
+                method(a, "sun.awt.image.ShortComponentRaster", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerIntegerComponentRasterInitIDs,
+                method(a, "sun.awt.image.IntegerComponentRaster", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerSampleModelInitIDs,
+                method(a, "java.awt.image.SampleModel", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerSinglePixelPackedSampleModelInitIDs,
+                method(a, "java.awt.image.SinglePixelPackedSampleModel", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerBufImgSurfaceDataInitIDs,
+                method(a, "sun.awt.image.BufImgSurfaceData", "initIDs", Class.class, Class.class));
+        a.registerReachabilityHandler(JNIRegistrationAwt::registerKernelInitIDs,
+                method(a, "java.awt.image.Kernel", "initIDs"));
         if (SUPPORT_HEADY) {
             a.registerReachabilityHandler(JNIRegistrationAwt::registerColorInitIDs,
                     method(a, "java.awt.Color", "initIDs"));
@@ -138,6 +158,8 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
             RuntimeJNIAccess.register(method(a, "java.lang.System", "load", String.class));
         }
     }
+
+    // Shared registration calls
 
     private static void registerDisposerInitIDs(DuringAnalysisAccess a) {
         RuntimeJNIAccess.register(method(a, "sun.java2d.Disposer", "addRecord",
@@ -240,6 +262,74 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
         RuntimeJNIAccess.register(fields(a, "sun.awt.SunHints",
                 "INTVAL_STROKE_PURE"));
     }
+
+    private static void registerBufferedImageInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "java.awt.image.BufferedImage",
+                "raster", "imageType", "colorModel"));
+        RuntimeJNIAccess.register(method(a, "java.awt.image.BufferedImage", "getRGB",
+                int.class, int.class, int.class, int.class,
+                int[].class, int.class, int.class));
+        RuntimeJNIAccess.register(method(a, "java.awt.image.BufferedImage", "setRGB",
+                int.class, int.class, int.class, int.class,
+                int[].class, int.class, int.class));
+    }
+
+    private static void registerRasterInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "java.awt.image.Raster",
+                "width", "height", "numBands", "minX", "minY",
+                "sampleModelTranslateX", "sampleModelTranslateY", "sampleModel",
+                "numDataElements", "numBands", "dataBuffer"));
+    }
+
+    private static void registerByteComponentRasterInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "sun.awt.image.ByteComponentRaster",
+                "data", "scanlineStride", "pixelStride", "dataOffsets", "type"));
+    }
+
+    private static void registerBytePackedRasterInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "sun.awt.image.BytePackedRaster",
+                "data", "scanlineStride", "pixelBitStride", "type", "dataBitOffset"));
+    }
+
+    private static void registerShortComponentRasterInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "sun.awt.image.ShortComponentRaster",
+                "data", "scanlineStride", "pixelStride", "dataOffsets", "type"));
+    }
+
+    private static void registerIntegerComponentRasterInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "sun.awt.image.IntegerComponentRaster",
+                "data", "scanlineStride", "pixelStride", "dataOffsets", "type"));
+    }
+
+    private static void registerSampleModelInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "java.awt.image.SampleModel",
+                "width", "height"));
+        RuntimeJNIAccess.register(method(a, "java.awt.image.SampleModel", "getPixels",
+                int.class, int.class, int.class, int.class, int[].class,
+                clazz(a, "java.awt.image.DataBuffer")));
+        RuntimeJNIAccess.register(method(a, "java.awt.image.SampleModel", "setPixels",
+                int.class, int.class, int.class, int.class, int[].class,
+                clazz(a, "java.awt.image.DataBuffer")));
+    }
+
+    private static void registerSinglePixelPackedSampleModelInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "java.awt.image.SinglePixelPackedSampleModel",
+                "bitMasks", "bitOffsets", "bitSizes", "maxBitSize"));
+    }
+
+    private static void registerBufImgSurfaceDataInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(constructor(a, "sun.awt.image.BufImgSurfaceData$ICMColorData", long.class));
+        RuntimeJNIAccess.register(fields(a, "sun.awt.image.BufImgSurfaceData$ICMColorData", "pData"));
+        RuntimeJNIAccess.register(fields(a, "java.awt.image.IndexColorModel",
+                "rgb", "allgrayopaque", "map_size", "colorData"));
+    }
+
+    private static void registerKernelInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "java.awt.image.Kernel",
+                "width", "height", "data"));
+    }
+
+    // Shared registration calls only required for heady execution
 
     private static void registerColorInitIDs(DuringAnalysisAccess a) {
         if (isLinux()) {

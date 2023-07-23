@@ -26,6 +26,14 @@ public class JNIRegistrationFontManager extends JNIRegistrationUtil implements F
                 method(a, "sun.font.FontManagerFactory", "getInstance"));
         a.registerReachabilityHandler(JNIRegistrationFontManager::registerSunFontManagerInitIDs,
                 method(a, "sun.font.SunFontManager", "initIDs"));
+        a.registerReachabilityHandler(JNIRegistrationFontManager::registerSunLayoutEngineShape,
+                method(a, "sun.font.SunLayoutEngine", "shape",
+                        clazz(a, "sun.font.Font2D"), clazz(a, "sun.font.FontStrike"), float.class, float[].class,
+                        long.class, char[].class, clazz(a, "sun.font.GlyphLayout$GVData"),
+                        int.class, int.class, int.class,
+                        int.class, clazz(a, "java.awt.geom.Point2D$Float"), int.class, int.class));
+        a.registerReachabilityHandler(JNIRegistrationFontManager::registerFreetypeFontScalerInitIDs,
+                method(a, "sun.font.FreetypeFontScaler", "initIDs", Class.class));
 
         if (isLinux()) {
             // These native methods live in the awt library, but ultimately are fontmanager specific
@@ -56,6 +64,8 @@ public class JNIRegistrationFontManager extends JNIRegistrationUtil implements F
             VMError.shouldNotReachHere(e);
         }
     }
+
+    // shared registration calls
 
     private static void registerFontManagerFactoryGetInstance(DuringAnalysisAccess a) {
         if (JavaVersionUtil.JAVA_SPEC <= 17) {
@@ -114,7 +124,21 @@ public class JNIRegistrationFontManager extends JNIRegistrationUtil implements F
                 "gposx", "gposy", "len", "images", "usePositions", "positions", "lcdRGBOrder", "lcdSubPixPos"));
     }
 
-    // linux specific registrations
+    private static void registerSunLayoutEngineShape(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(clazz(a, "sun.font.GlyphLayout$GVData"));
+        RuntimeJNIAccess.register(fields(a, "sun.font.GlyphLayout$GVData",
+                "_count", "_flags", "_glyphs", "_positions", "_indices"));
+        RuntimeJNIAccess.register(method(a, "sun.font.GlyphLayout$GVData", "grow"));
+    }
+
+    private static void registerFreetypeFontScalerInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(method(a, "sun.font.FreetypeFontScaler", "invalidateScaler"));
+        if (JavaVersionUtil.JAVA_SPEC >= 20) {
+            RuntimeJNIAccess.register(method(a, "sun.font.FontUtilities", "debugFonts"));
+        }
+    }
+
+    // linux registration calls
 
     private static void registerFcFontManagerGetFontPathNative(DuringAnalysisAccess a) {
         RuntimeJNIAccess.register(clazz(a, "java.awt.GraphicsEnvironment"));
@@ -136,7 +160,7 @@ public class JNIRegistrationFontManager extends JNIRegistrationUtil implements F
                 "familyName", "styleStr", "fullName", "fontFile"));
     }
 
-    // windows specific registrations
+    // windows registrations calls
 
     private static void registerWin32FontManagerPopulateFontFileNameMap0(DuringAnalysisAccess a) {
         RuntimeJNIAccess.register(clazz(a, "java.util.HashMap"));

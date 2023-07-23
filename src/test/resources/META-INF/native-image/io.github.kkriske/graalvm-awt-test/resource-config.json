@@ -1,0 +1,8 @@
+{
+  "resources": {
+    "includes": [
+      {"pattern": "\\Qio/github/kkriske/issues/issue6918unix.png\\E"},
+      {"pattern": "\\Qio/github/kkriske/issues/issue6918win.png\\E"}
+    ]
+  }
+}
