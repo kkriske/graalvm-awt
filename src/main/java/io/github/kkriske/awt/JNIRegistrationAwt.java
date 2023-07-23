@@ -12,6 +12,11 @@ import java.util.List;
 
 /**
  * TODO: Coverage of JNI calls required for AWT is incomplete.
+ *
+ * Open questions:
+ * - Host General AWT registrations and Heady AWT registrations in separate features?
+ * - what JDK versions should be supported, just JDK 21 or both 17 and 21?
+ * - Should xawt be hosted in a separate feature?
  */
 public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
 
@@ -82,6 +87,11 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
                     method(a, "java.awt.Toolkit", "initIDs"));
             a.registerReachabilityHandler(JNIRegistrationAwt::registerWToolkitInitIDs,
                     method(a, "sun.awt.windows.WToolkit", "initIDs"));
+            a.registerReachabilityHandler(JNIRegistrationAwt::registerWToolkitInit,
+                    method(a, "sun.awt.windows.WToolkit", "init"));
+            a.registerReachabilityHandler(JNIRegistrationAwt::registerWToolkitEventLoop,
+                    method(a, "sun.awt.windows.WToolkit", "eventLoop"));
+            // WToolkit#getScreenInsets
             a.registerReachabilityHandler(JNIRegistrationAwt::registerFontInitIDs,
                     method(a, "java.awt.Font", "initIDs"));
             a.registerReachabilityHandler(JNIRegistrationAwt::registerWindowsFlagsInitNativeFlags,
@@ -106,6 +116,8 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
             if (SUPPORT_HEADY) {
                 a.registerReachabilityHandler(JNIRegistrationAwt::registerX11GraphicsEnvironmentInitDisplay,
                         method(a, "sun.awt.X11GraphicsEnvironment", "initDisplay", boolean.class));
+                a.registerReachabilityHandler(JNIRegistrationAwt::registerXToolkitInitIDs,
+                        method(a, "sun.awt.X11.XToolkit", "initIDs"));
             }
         }
     }
@@ -289,6 +301,17 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
                 "UNSPECIFIED", "CONSOLE", "REMOTE", "LOCK"));
     }
 
+    private static void registerWToolkitInit(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(clazz(a, "sun.awt.SunToolkit"));
+        RuntimeJNIAccess.register(method(a, "sun.awt.SunToolkit", "isTouchKeyboardAutoShowEnabled"));
+    }
+
+    private static void registerWToolkitEventLoop(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(clazz(a, "sun.awt.AWTAutoShutdown"));
+        RuntimeJNIAccess.register(method(a, "sun.awt.AWTAutoShutdown", "notifyToolkitThreadBusy"));
+        RuntimeJNIAccess.register(method(a, "sun.awt.AWTAutoShutdown", "notifyToolkitThreadFree"));
+    }
+
     private static void registerFontInitIDs(DuringAnalysisAccess a) {
         RuntimeJNIAccess.register(method(a, "java.awt.Font", "getFontPeer"));
         RuntimeJNIAccess.register(fields(a, "java.awt.Font", "pData", "name", "size", "style"));
@@ -342,5 +365,10 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
         RuntimeJNIAccess.register(method(a, "sun.awt.SunToolkit", "awtLockNotifyAll"));
         registerForThrowNew(a, "java.awt.AWTError");
         RuntimeJNIAccess.register(method(a, "sun.awt.X11.XErrorHandlerUtil", "init", long.class));
+    }
+
+    private static void registerXToolkitInitIDs(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(fields(a, "sun.awt.X11.XToolkit",
+                "numLockMask", "modLockIsShiftLock"));
     }
 }

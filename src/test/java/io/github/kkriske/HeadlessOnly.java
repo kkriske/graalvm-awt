@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@EnabledIfSystemProperty(named = JUnitHelperFeature.JAVA_HEADLESS_PROPERTY, matches = "true")
+@EnabledIfSystemProperty(named = JUnitHelperFeature.JAVA_HEADLESS_PROPERTY, matches = "true",
+        disabledReason = "Disabled during heady execution")
 public @interface HeadlessOnly {
 }

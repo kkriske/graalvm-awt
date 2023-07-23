@@ -91,6 +91,7 @@
                     <buildArgs>
                         <arg>-H:+ReportExceptionStackTraces</arg>
                         <arg>--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED</arg>
+                        <arg>--initialize-at-build-time=org.junit.jupiter.api.condition.OS</arg>
                     </buildArgs>
                 </configuration>
             </plugin>
