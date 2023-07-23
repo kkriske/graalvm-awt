@@ -12,7 +12,6 @@ import java.util.List;
 
 /**
  * TODO: Coverage of JNI calls required for AWT is incomplete.
- *
  * Open questions:
  * - Host General AWT registrations and Heady AWT registrations in separate features?
  * - what JDK versions should be supported, just JDK 21 or both 17 and 21?
@@ -117,6 +116,8 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
                 a.registerReachabilityHandler(JNIRegistrationAwt::registerX11GraphicsEnvironmentInitDisplay,
                         method(a, "sun.awt.X11GraphicsEnvironment", "initDisplay", boolean.class));
                 a.registerReachabilityHandler(JNIRegistrationAwt::registerXToolkitInitIDs,
+                        method(a, "sun.awt.X11.XToolkit", "initIDs"));
+                a.registerReachabilityHandler(JNIRegistrationAwt::registerXToolkitWaitForEvents,
                         method(a, "sun.awt.X11.XToolkit", "initIDs"));
                 a.registerReachabilityHandler(JNIRegistrationAwt::registerXDesktopPeerInit,
                         method(a, "sun.awt.X11.XDesktopPeer", "init",
@@ -375,6 +376,11 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
                 "numLockMask", "modLockIsShiftLock"));
     }
 
+    private static void registerXToolkitWaitForEvents(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(clazz(a, "java.lang.Thread"));
+        RuntimeJNIAccess.register(method(a, "java.lang.Thread", "yield"));
+    }
+
     private static void registerXDesktopPeerInit(DuringAnalysisAccess a) {
         RuntimeJNIAccess.register(clazz(a, "java.awt.Desktop$Action"));
         RuntimeJNIAccess.register(clazz(a, "sun.awt.X11.XDesktopPeer"));
@@ -382,5 +388,7 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
         RuntimeJNIAccess.register(clazz(a, "java.util.ArrayList"));
         RuntimeJNIAccess.register(method(a, "java.util.ArrayList", "add", Object.class));
         RuntimeJNIAccess.register(method(a, "java.util.ArrayList", "clear"));
+        RuntimeJNIAccess.register(fields(a, "java.awt.Desktop$Action",
+                "OPEN", "BROWSE", "MAIL"));
     }
 }
