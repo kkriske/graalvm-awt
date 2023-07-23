@@ -99,6 +99,8 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
                     method(a, "sun.awt.Win32GraphicsEnvironment", "initDisplay"));
             a.registerReachabilityHandler(JNIRegistrationAwt::registerWObjectPeerInitIDs,
                     method(a, "sun.awt.windows.WObjectPeer", "initIDs"));
+            a.registerReachabilityHandler(JNIRegistrationAwt::registerPrintServiceLookupProviderNotifyRemotePrinterChange,
+                    method(a, "sun.print.PrintServiceLookupProvider", "notifyRemotePrinterChange"));
             if (SUPPORT_HEADY) {
                 a.registerReachabilityHandler(JNIRegistrationAwt::registerInsetsInitIDs,
                         method(a, "java.awt.Insets", "initIDs"));
@@ -337,8 +339,12 @@ public class JNIRegistrationAwt extends JNIRegistrationUtil implements Feature {
         RuntimeJNIAccess.register(method(a, "sun.awt.windows.WObjectPeer", "getPeerForTarget", Object.class));
     }
 
+    private static void registerPrintServiceLookupProviderNotifyRemotePrinterChange(DuringAnalysisAccess a) {
+        RuntimeJNIAccess.register(method(a, "sun.print.PrintServiceLookupProvider", "refreshServices"));
+    }
 
     // Windows registration calls only required for heady execution
+
     private static void registerInsetsInitIDs(DuringAnalysisAccess a) {
         RuntimeJNIAccess.register(fields(a, "java.awt.Insets", "left", "right", "top", "bottom"));
     }
